@@ -51,6 +51,15 @@ docker compose exec web php -r 'require "src/bootstrap.php"; echo create_login_l
    dans phpMyAdmin puis importer le TSV depuis la page Réglages.
 6. Activer le certificat SSL (AutoSSL) : le cookie de session est alors marqué `Secure`.
 
+En cas d’erreur 500, consulter `~/vote/logs/php-error.log` (gestionnaire de fichiers cPanel).
+
+Si les e-mails de connexion n’arrivent pas, lancer le diagnostic (configuration, DNS/SPF, échange SMTP complet) :
+
+```bash
+php ~/vote/scripts/test-mail.php vous@example.org               # message de test
+php ~/vote/scripts/test-mail.php vous@example.org --connexion   # vrai lien de connexion d’un juré
+```
+
 ## Structure
 
 ```

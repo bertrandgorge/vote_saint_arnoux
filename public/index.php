@@ -22,7 +22,11 @@ if ($path === '/connexion') {
         $member = db_one('SELECT * FROM members WHERE LOWER(email) = ?', [$email]);
         if ($member) {
             $link = create_login_link((int) $member['id'], config('email_link_ttl_hours') * 3600);
-            send_login_email($member, $link);
+            if (!send_login_email($member, $link)) {
+                error_log("Lien de connexion non envoyé à {$email} (voir l'erreur ci-dessus)");
+            }
+        } else {
+            error_log("Demande de connexion pour une adresse inconnue : {$email}");
         }
         // Même réponse que l'adresse soit connue ou non
         render('login', ['sent' => true, 'email' => $email]);

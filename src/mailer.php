@@ -27,7 +27,11 @@ function send_mail(string $to, string $subject, string $body): bool
     $body = quoted_printable_encode(str_replace(["\r\n", "\r", "\n"], "\r\n", $body));
 
     if (!config('smtp_host')) {
-        return mail($to, $subject, $body, $headers, '-f' . $from);
+        $ok = mail($to, $subject, $body, $headers, '-f' . $from);
+        if (!$ok) {
+            error_log('Envoi via mail() vers ' . $to . ' impossible : ' . (error_get_last()['message'] ?? 'raison inconnue'));
+        }
+        return $ok;
     }
 
     $headers = [
@@ -46,6 +50,7 @@ function send_mail(string $to, string $subject, string $body): bool
         smtp_send($from, $to, $message);
         return true;
     } catch (RuntimeException $ex) {
+        smtp_trace('! ' . $ex->getMessage());
         error_log('Envoi SMTP vers ' . $to . ' impossible : ' . $ex->getMessage());
         return false;
     }
@@ -57,11 +62,24 @@ function smtp_send(string $from, string $to, string $message): void
     $port   = (int) config('smtp_port');
     $secure = config('smtp_secure'); // ssl | tls (STARTTLS) | none
 
-    $fp = @stream_socket_client(($secure === 'ssl' ? 'ssl://' : 'tcp://') . "{$host}:{$port}", $errno, $errstr, 15);
+    $target = ($secure === 'ssl' ? 'ssl://' : 'tcp://') . "{$host}:{$port}";
+    smtp_trace("* connexion à {$target}");
+    // Les erreurs TLS (certificat…) ne sont données que sous forme d'avertissements : on les collecte
+    $warnings = [];
+    set_error_handler(function (int $no, string $msg) use (&$warnings): bool {
+        $warnings[] = $msg;
+        return true;
+    });
+    try {
+        $fp = stream_socket_client($target, $errno, $errstr, 15);
+    } finally {
+        restore_error_handler();
+    }
     if (!$fp) {
-        throw new RuntimeException("connexion à {$host}:{$port} impossible ({$errstr})");
+        throw new RuntimeException("connexion à {$host}:{$port} impossible ({$errno} {$errstr}) " . implode(' / ', $warnings));
     }
     stream_set_timeout($fp, 15);
+    smtp_trace_crypto($fp);
 
     try {
         $helo = parse_url(config('app_url'), PHP_URL_HOST) ?: 'localhost';
@@ -70,27 +88,49 @@ function smtp_send(string $from, string $to, string $message): void
         if ($secure === 'tls') {
             smtp_command($fp, 'STARTTLS', 220);
             if (!stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-                throw new RuntimeException('échec de la négociation STARTTLS');
+                throw new RuntimeException('échec de la négociation STARTTLS (' . (error_get_last()['message'] ?? '') . ')');
             }
+            smtp_trace_crypto($fp);
             smtp_command($fp, "EHLO {$helo}", 250);
         }
         if (config('smtp_user')) {
             smtp_command($fp, 'AUTH LOGIN', 334);
-            smtp_command($fp, base64_encode(config('smtp_user')), 334);
-            smtp_command($fp, base64_encode(config('smtp_pass')), 235);
+            smtp_command($fp, base64_encode(config('smtp_user')), 334, '<utilisateur : ' . config('smtp_user') . '>');
+            smtp_command($fp, base64_encode(config('smtp_pass')), 235, '<mot de passe masqué>');
         }
         smtp_command($fp, "MAIL FROM:<{$from}>", 250);
         smtp_command($fp, "RCPT TO:<{$to}>", [250, 251]);
         smtp_command($fp, 'DATA', 354);
-        smtp_command($fp, $message . "\r\n.", 250);
-        fwrite($fp, "QUIT\r\n");
+        smtp_command($fp, $message . "\r\n.", 250, '<message de ' . strlen($message) . ' octets>');
+        try {
+            smtp_command($fp, 'QUIT', 221);
+        } catch (RuntimeException) {
+            // Le message est déjà accepté : une fin de session incorrecte n'est pas un échec
+        }
     } finally {
         fclose($fp);
     }
 }
 
-function smtp_command($fp, string $command, int|array $expected): string
+// Journal détaillé de l'échange SMTP, activé en définissant $GLOBALS['smtp_trace'] (callable).
+function smtp_trace(string $line): void
 {
+    if (isset($GLOBALS['smtp_trace'])) {
+        ($GLOBALS['smtp_trace'])($line);
+    }
+}
+
+function smtp_trace_crypto($fp): void
+{
+    $crypto = stream_get_meta_data($fp)['crypto'] ?? null;
+    if ($crypto) {
+        smtp_trace("* chiffrement : {$crypto['protocol']} / {$crypto['cipher_name']}");
+    }
+}
+
+function smtp_command($fp, string $command, int|array $expected, ?string $shown = null): string
+{
+    smtp_trace('C: ' . ($shown ?? $command));
     fwrite($fp, $command . "\r\n");
     return smtp_expect($fp, $expected);
 }
@@ -101,9 +141,14 @@ function smtp_expect($fp, int|array $expected): string
     $response = '';
     while (($line = fgets($fp, 515)) !== false) {
         $response .= $line;
+        smtp_trace('S: ' . rtrim($line));
         if (!isset($line[3]) || $line[3] === ' ') {
             break;
         }
+    }
+    if ($response === '') {
+        $timedOut = stream_get_meta_data($fp)['timed_out'] ?? false;
+        throw new RuntimeException($timedOut ? 'délai dépassé en attente du serveur' : 'connexion fermée par le serveur');
     }
     if (!in_array((int) substr($response, 0, 3), (array) $expected, true)) {
         throw new RuntimeException('réponse inattendue du serveur : ' . trim($response));
