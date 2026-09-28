@@ -33,7 +33,11 @@
 
 <form class="scoring" id="scoring" data-architect="<?= $architect['id'] ?>" onsubmit="return false">
     <div class="scoring-summary">
-        <div>
+        <div class="summary-who" aria-hidden="true">
+            <strong><?= e($architect['agency']) ?></strong>
+            <?php if ($architect['referent']): ?><span class="muted"><?= e($architect['referent']) ?></span><?php endif; ?>
+        </div>
+        <div class="summary-score">
             <span class="muted">Votre score pondéré</span>
             <strong id="my-total">—</strong><span class="muted">/ 100</span>
         </div>
