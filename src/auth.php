@@ -40,6 +40,9 @@ function require_admin(): array
 {
     $member = require_login();
     if (!$member['is_admin']) {
+        if (str_starts_with($_SERVER['REQUEST_URI'] ?? '', '/api/')) {
+            json_response(['error' => 'Réservé aux administrateurs'], 403);
+        }
         http_response_code(403);
         render('message', ['title' => 'Accès réservé', 'message' => 'Cette page est réservée aux administrateurs.']);
         exit;

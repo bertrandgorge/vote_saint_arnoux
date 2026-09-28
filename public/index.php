@@ -69,16 +69,22 @@ if ($path === '/') {
     render('home', [
         'me'         => $me,
         'architects' => get_architects(),
-        'ranking'    => ranking(),
         'progress'   => member_progress((int) $me['id']),
         'canVote'    => $canVote,
     ]);
     exit;
 }
 
+if ($path === '/classement') {
+    require_admin();
+    render('ranking', ['me' => $me, 'ranking' => ranking()]);
+    exit;
+}
+
 if (preg_match('~^/architecte/(\d+)(/tableau)?$~', $path, $m)) {
     $architect = get_architect((int) $m[1]) ?? not_found();
     if (!empty($m[2])) {
+        require_admin();
         render('dashboard', ['me' => $me, 'architect' => $architect, 'data' => architect_dashboard((int) $architect['id'])]);
     } else {
         $ids = array_column(get_architects(), 'id');
@@ -116,11 +122,13 @@ if ($path === '/api/score' && $method === 'POST') {
 }
 
 if (preg_match('~^/api/architecte/(\d+)/tableau$~', $path, $m)) {
+    require_admin();
     get_architect((int) $m[1]) ?? json_response(['error' => 'Introuvable'], 404);
     json_response(architect_dashboard((int) $m[1]));
 }
 
 if ($path === '/api/classement') {
+    require_admin();
     json_response(ranking());
 }
 

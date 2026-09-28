@@ -1,6 +1,6 @@
 <?php $pageTitle = 'Tableau de bord — ' . $architect['agency']; ?>
 <nav class="crumbs">
-    <a href="/">← Tous les dossiers</a>
+    <a href="/classement">← Classement</a>
     <a href="/architecte/<?= $architect['id'] ?>">Grille de notation ›</a>
 </nav>
 
