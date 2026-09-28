@@ -15,6 +15,9 @@ services:
       DB_USER: vote
       DB_PASS: vote
       MAIL_FROM: "jury@saint-arnoux.local"
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SMTP_SECURE: none
     depends_on:
       db:
         condition: service_healthy

@@ -45,7 +45,8 @@ docker compose exec web php -r 'require "src/bootstrap.php"; echo create_login_l
 2. Envoyer le dépôt (hors `.git`, `docker/`) sur l’hébergement, par exemple dans `~/vote/`.
 3. Faire pointer le domaine ou sous-domaine sur **`~/vote/public`** (racine du document).
 4. Copier `config/config.local.php.example` en `config/config.local.php` et le compléter
-   (`app_url` en https, accès base, `mail_from` sur une adresse du domaine pour la délivrabilité).
+   (`app_url` en https, accès base, `mail_from` sur une adresse du domaine pour la délivrabilité,
+   et paramètres `smtp_*` du compte e-mail correspondant créé dans cPanel).
 5. Déposer `config/jury.local.php` et le TSV (non versionnés) puis initialiser : `php ~/vote/scripts/setup.php` (terminal cPanel / SSH), ou importer `sql/schema.sql`
    dans phpMyAdmin puis importer le TSV depuis la page Réglages.
 6. Activer le certificat SSL (AutoSSL) : le cookie de session est alors marqué `Secure`.

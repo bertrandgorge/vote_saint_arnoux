@@ -8,4 +8,11 @@ return [
     'db_user'   => 'cpaneluser_vote',
     'db_pass'   => 'change-me',
     'mail_from' => 'jury@example.org',
+    // SMTP authentifié (recommandé) : compte e-mail créé dans cPanel, même adresse que mail_from.
+    // Serveur : nom d'hôte du serveur O2Switch (voir « Configurer le client de messagerie » dans cPanel).
+    'smtp_host'   => 'mail.example.org',
+    'smtp_port'   => 465,
+    'smtp_secure' => 'ssl', // ssl (port 465) | tls = STARTTLS (port 587) | none
+    'smtp_user'   => 'jury@example.org',
+    'smtp_pass'   => 'change-me',
 ];
