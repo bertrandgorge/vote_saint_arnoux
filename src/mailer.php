@@ -13,8 +13,34 @@ function send_login_email(array $member, string $link): bool
     return send_mail($member['email'], $subject, $body);
 }
 
-// Envoie un e-mail texte : par SMTP si smtp_host est configuré, sinon via mail().
+// Envoie un e-mail texte et consigne l'échange complet dans logs/mail.log.
 function send_mail(string $to, string $subject, string $body): bool
+{
+    $lines = [];
+    $previous = $GLOBALS['smtp_trace'] ?? null;
+    $GLOBALS['smtp_trace'] = function (string $line) use (&$lines, $previous): void {
+        $lines[] = date('H:i:s') . ' ' . $line;
+        if ($previous) {
+            $previous($line);
+        }
+    };
+    try {
+        $ok = send_mail_now($to, $subject, $body);
+    } finally {
+        $GLOBALS['smtp_trace'] = $previous;
+    }
+    $origin = PHP_SAPI === 'cli' ? 'cli' : PHP_SAPI . ' ' . ($_SERVER['REMOTE_ADDR'] ?? '?') . ' ' . ($_SERVER['REQUEST_URI'] ?? '');
+    @file_put_contents(
+        APP_ROOT . '/logs/mail.log',
+        '[' . date('Y-m-d H:i:s') . "] {$to} ({$origin}) : " . ($ok ? 'ACCEPTÉ' : 'ÉCHEC') . "\n  "
+            . implode("\n  ", $lines) . "\n\n",
+        FILE_APPEND | LOCK_EX
+    );
+    return $ok;
+}
+
+// Par SMTP si smtp_host est configuré, sinon via mail().
+function send_mail_now(string $to, string $subject, string $body): bool
 {
     $from = config('mail_from');
     $headers = [
@@ -27,6 +53,7 @@ function send_mail(string $to, string $subject, string $body): bool
     $body = quoted_printable_encode(str_replace(["\r\n", "\r", "\n"], "\r\n", $body));
 
     if (!config('smtp_host')) {
+        smtp_trace('* envoi via mail() : ' . ini_get('sendmail_path'));
         $ok = mail($to, $subject, $body, $headers, '-f' . $from);
         if (!$ok) {
             error_log('Envoi via mail() vers ' . $to . ' impossible : ' . (error_get_last()['message'] ?? 'raison inconnue'));
@@ -45,6 +72,7 @@ function send_mail(string $to, string $subject, string $body): bool
         $message .= "{$name}: {$value}\r\n";
     }
     $message .= "\r\n" . preg_replace('/^\./m', '..', $body);
+    smtp_trace("* Message-ID {$headers['Message-ID']}, expéditeur {$from}");
 
     try {
         smtp_send($from, $to, $message);
