@@ -1,0 +1,11 @@
+<?php
+// Copier ce fichier en config.local.php (non versionné) et adapter.
+return [
+    'app_url'   => 'https://vote.example.org',
+    'app_env'   => 'prod',
+    'db_host'   => 'localhost',
+    'db_name'   => 'cpaneluser_vote',
+    'db_user'   => 'cpaneluser_vote',
+    'db_pass'   => 'change-me',
+    'mail_from' => 'jury@example.org',
+];
