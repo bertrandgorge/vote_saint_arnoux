@@ -71,6 +71,11 @@
     <div class="section-head">
         <h2>Architectes <small class="muted">(<?= count($architects) ?>)</small></h2>
         <p class="muted">Ordre d’affichage aléatoire, identique pour tous les membres.</p>
+        <form method="post" action="/reglages" class="inline">
+            <?= csrf_field() ?>
+            <button class="btn small" name="action" value="architects_shuffle"
+                    data-confirm="Tirer un nouvel ordre aléatoire des architectes ? L’ordre changera pour tous les membres du jury (les notes sont conservées).">Nouvel ordre aléatoire</button>
+        </form>
     </div>
     <div class="table-wrap">
         <table class="grid form-grid">

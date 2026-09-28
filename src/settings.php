@@ -46,6 +46,11 @@ if ($method === 'POST') {
                 flash('Architecte supprimé, ainsi que ses notes.');
                 redirect('/reglages#architectes');
 
+            case 'architects_shuffle':
+                $n = db_exec('UPDATE architects SET sort_key = FLOOR(RAND() * 2000000000)');
+                flash("Nouvel ordre aléatoire tiré pour les {$n} architecte(s).");
+                redirect('/reglages#architectes');
+
             case 'import':
                 if (($_FILES['tsv']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
                     throw new InvalidArgumentException('Aucun fichier reçu.');
