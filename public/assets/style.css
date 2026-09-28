@@ -167,8 +167,8 @@ td.changed { animation: changed 1.6s ease-out; }
 .architect-item.state-partial { border-left: 4px solid var(--warn); }
 .progress { display: flex; gap: 3px; }
 .progress i { width: 10px; height: 10px; border-radius: 3px; background: #ebe7de; }
-.progress i.on { background: var(--ok); }
-.state-partial .progress i.on { background: var(--warn); }
+.progress i.s0 { background: var(--s0); } .progress i.s1 { background: var(--s1); } .progress i.s2 { background: var(--s2); }
+.progress i.s3 { background: var(--s3); } .progress i.s4 { background: var(--s4); } .progress i.s5 { background: var(--s5); }
 
 /* ------------------------------------------------------------ Page de notation */
 .crumbs { display: flex; justify-content: space-between; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }

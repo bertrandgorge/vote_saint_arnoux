@@ -178,8 +178,12 @@ function ranking(): array
 }
 
 /** Nombre de critères notés par un membre, par architecte. */
+/** Notes d'un membre pour tous les dossiers : [architect_id => [critère => note]]. */
 function member_progress(int $memberId): array
 {
-    $rows = db_all('SELECT architect_id, COUNT(*) AS n FROM scores WHERE member_id = ? GROUP BY architect_id', [$memberId]);
-    return array_map('intval', array_column($rows, 'n', 'architect_id'));
+    $progress = [];
+    foreach (db_all('SELECT architect_id, criterion, score FROM scores WHERE member_id = ?', [$memberId]) as $r) {
+        $progress[(int) $r['architect_id']][(int) $r['criterion']] = (int) $r['score'];
+    }
+    return $progress;
 }

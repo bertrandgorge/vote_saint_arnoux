@@ -6,13 +6,14 @@ $nbCriteria = count(criteria());
     <div class="section-head">
         <h1>Dossiers à évaluer</h1>
         <?php if ($canVote):
-            $done = count(array_filter($progress, fn ($n) => $n >= $nbCriteria)); ?>
+            $done = count(array_filter($progress, fn ($s) => count($s) >= $nbCriteria)); ?>
             <p class="muted">Vous avez entièrement noté <strong><?= $done ?></strong> dossier(s) sur <?= count($architects) ?>.</p>
         <?php endif; ?>
     </div>
     <ol class="architect-list">
         <?php foreach ($architects as $i => $a):
-            $n = $progress[$a['id']] ?? 0;
+            $scores = $progress[$a['id']] ?? [];
+            $n = count($scores);
             $state = $n === 0 ? 'todo' : ($n >= $nbCriteria ? 'done' : 'partial'); ?>
             <li class="architect-item state-<?= $state ?>">
                 <span class="num"><?= $i + 1 ?></span>
@@ -22,7 +23,7 @@ $nbCriteria = count(criteria());
                 </a>
                 <?php if ($canVote): ?>
                     <span class="progress" title="<?= $n ?> critère(s) noté(s) sur <?= $nbCriteria ?>">
-                        <?php for ($k = 1; $k <= $nbCriteria; $k++): ?><i class="<?= $k <= $n ? 'on' : '' ?>"></i><?php endfor; ?>
+                        <?php foreach (criteria() as $k => $c): ?><i<?= isset($scores[$k]) ? ' class="s' . $scores[$k] . '"' : '' ?> title="Critère <?= $k ?> : <?= isset($scores[$k]) ? $scores[$k] . ' / 5' : 'non évalué' ?>"></i><?php endforeach; ?>
                     </span>
                 <?php endif; ?>
                 <span class="actions">
