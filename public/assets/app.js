@@ -27,6 +27,15 @@
         }
     });
 
+    // Menu repliable (mobile)
+    const menuToggle = $('.menu-toggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', () => {
+            const open = menuToggle.closest('.topbar').classList.toggle('open');
+            menuToggle.setAttribute('aria-expanded', String(open));
+        });
+    }
+
     // Bouton activé seulement quand le champ correspond au mot attendu (attribut pattern)
     document.querySelectorAll('[data-unlock]').forEach((input) => {
         const btn = $(input.dataset.unlock);

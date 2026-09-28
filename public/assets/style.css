@@ -52,6 +52,8 @@ small { font-size: .8em; font-weight: normal; }
 .role { font-style: normal; font-size: .75em; padding: 1px 7px; border-radius: 99px; margin-left: 4px; background: var(--accent-soft); color: var(--accent); }
 .role-consultatif { background: #eef1f6; color: #4b5a78; }
 .role-aucun { background: #eee; color: #555; }
+.menu-toggle { display: none; background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px; color: var(--ink); cursor: pointer; }
+.menu-toggle svg { display: block; width: 22px; height: 22px; }
 .linkish { background: none; border: 0; padding: 0; color: var(--muted); font: inherit; cursor: pointer; text-decoration: underline; }
 
 .page { max-width: 1280px; margin: 0 auto; padding: 24px; }
@@ -261,7 +263,11 @@ fieldset[disabled] .likert .opt { cursor: default; opacity: .75; }
 /* ------------------------------------------------------------ Mobile */
 @media (max-width: 720px) {
     .page { padding: 14px; }
-    .topbar { padding: 8px 14px; }
+    /* En-tête non collant et menu replié : la barre de score occupe seule le haut de l'écran */
+    .topbar { padding: 8px 14px; position: static; }
+    .menu-toggle { display: block; }
+    .topnav { display: none; flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 12px; padding: 8px 0 4px; }
+    .topbar.open .topnav { display: flex; }
     .likert { grid-template-columns: repeat(6, 1fr); }
     .likert .opt-na { grid-column: 1 / -1; }
     .likert .opt-na span { height: 36px; }
