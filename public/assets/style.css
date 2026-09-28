@@ -179,6 +179,9 @@ td.changed { animation: changed 1.6s ease-out; }
 .facts dt { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
 .facts dd { margin: 0; font-weight: 500; }
 .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+/* Logo Google Drive (multicolore) sur pastille blanche, lisible sur le bouton bordeaux */
+.ico-drive { display: inline-grid; place-items: center; width: 30px; height: 30px; margin: -4px 4px -4px -6px; border-radius: 7px; background: #fff; }
+.ico-drive svg { width: 20px; height: 18px; }
 
 .scoring-summary {
     position: sticky; top: 57px; z-index: 5;

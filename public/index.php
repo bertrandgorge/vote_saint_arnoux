@@ -68,7 +68,7 @@ $canVote = in_array($me['role'], ['votant', 'consultatif'], true);
 if ($path === '/') {
     render('home', [
         'me'         => $me,
-        'architects' => get_architects(),
+        'architects' => get_evaluable_architects(),
         'progress'   => member_progress((int) $me['id']),
         'canVote'    => $canVote,
     ]);
@@ -87,16 +87,16 @@ if (preg_match('~^/architecte/(\d+)(/tableau)?$~', $path, $m)) {
         require_admin();
         render('dashboard', ['me' => $me, 'architect' => $architect, 'data' => architect_dashboard((int) $architect['id'])]);
     } else {
-        $ids = array_column(get_architects(), 'id');
-        $pos = array_search($architect['id'], $ids);
+        $ids = array_column(get_evaluable_architects(), 'id');
+        $pos = array_search($architect['id'], $ids); // false : dossier hors liste (sans lien Drive)
         render('architect', [
             'me'        => $me,
             'architect' => $architect,
             'scores'    => member_scores((int) $me['id'], (int) $architect['id']),
             'canVote'   => $canVote,
-            'prevId'    => $ids[$pos - 1] ?? null,
-            'nextId'    => $ids[$pos + 1] ?? null,
-            'position'  => $pos + 1,
+            'prevId'    => $pos === false ? null : ($ids[$pos - 1] ?? null),
+            'nextId'    => $pos === false ? null : ($ids[$pos + 1] ?? null),
+            'position'  => $pos === false ? null : $pos + 1,
             'count'     => count($ids),
         ]);
     }

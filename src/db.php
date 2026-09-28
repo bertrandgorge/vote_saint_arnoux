@@ -42,6 +42,12 @@ function get_architects(): array
     return db_all('SELECT * FROM architects ORDER BY sort_key, id');
 }
 
+/** Dossiers proposés au jury : ceux dont le lien Google Drive est renseigné. */
+function get_evaluable_architects(): array
+{
+    return db_all("SELECT * FROM architects WHERE drive_url <> '' ORDER BY sort_key, id");
+}
+
 function get_architect(int $id): ?array
 {
     return db_one('SELECT * FROM architects WHERE id = ?', [$id]);

@@ -41,7 +41,7 @@ return [
         'short'  => 'RSE',
         'title'  => 'Responsabilité sociétale et environnementale du candidat, dont compétence et références en performance environnementale',
         'weight' => 10,
-        'note'   => 'Piège à éviter — Le critère RSE porte sur la démarche du candidat lui-même, pas sur le projet : l’erreur la plus fréquente consiste à noter ici la qualité environnementale annoncée du bâtiment, qui relève des Sélections 2 et 3 et serait alors comptée deux fois. Rappel de la V2 : aucun label environnemental n’est imposé par le règlement. L’absence de démarche labellisée ne se sanctionne donc pas ; c’est la capacité démontrée à démontrer la performance qui est appréciée.',
+        'note'   => 'Le critère RSE porte sur la démarche du candidat lui-même, pas sur le projet ; la qualité environnementale annoncée du projet relève des sélections 2 et 3',
         'low'    => 'Déclaration d’intention sans preuve ; confusion avec la performance environnementale du projet, qui s’apprécie en Sélections 2 et 3.',
         'high'   => 'Démarche propre à l’agence et à ses cotraitants, documentée, avec au moins une référence de performance environnementale.',
     ],
