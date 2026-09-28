@@ -20,15 +20,19 @@ if ($path === '/connexion') {
     if ($method === 'POST') {
         $email = mb_strtolower(trim($_POST['email'] ?? ''));
         $member = db_one('SELECT * FROM members WHERE LOWER(email) = ?', [$email]);
-        if ($member) {
-            $link = create_login_link((int) $member['id'], config('email_link_ttl_hours') * 3600);
-            if (!send_login_email($member, $link)) {
-                error_log("Lien de connexion non envoyé à {$email} (voir l'erreur ci-dessus)");
-            }
-        } else {
+        if (!$member) {
             error_log("Demande de connexion pour une adresse inconnue : {$email}");
+            render('login', ['sent' => false, 'email' => $email,
+                'error' => 'Cette adresse ne fait pas partie du jury. Vérifiez-la, ou contactez un administrateur.']);
+            exit;
         }
-        // Même réponse que l'adresse soit connue ou non
+        $link = create_login_link((int) $member['id'], config('email_link_ttl_hours') * 3600);
+        if (!send_login_email($member, $link)) {
+            error_log("Lien de connexion non envoyé à {$email} (voir logs/mail.log)");
+            render('login', ['sent' => false, 'email' => $email,
+                'error' => 'L’e-mail n’a pas pu être envoyé. Réessayez plus tard, ou contactez un administrateur.']);
+            exit;
+        }
         render('login', ['sent' => true, 'email' => $email]);
         exit;
     }
