@@ -115,3 +115,25 @@
         <button class="btn" name="action" value="import">Importer</button>
     </form>
 </section>
+
+<!-- ============================================================ Zone de danger -->
+<section class="section danger-zone" id="danger">
+    <div class="section-head">
+        <h2>Zone de danger</h2>
+        <p class="muted">Actions irréversibles : aucune sauvegarde n’est faite.</p>
+    </div>
+    <form method="post" action="/reglages" class="card danger-card">
+        <?= csrf_field() ?>
+        <div>
+            <strong>Réinitialiser toutes les réponses</strong>
+            <p class="muted">Supprime les <?= $scoresTotal ?> note(s) saisie(s) par l’ensemble du jury, pour tous les dossiers.
+               Les membres, les architectes et les sessions sont conservés.</p>
+        </div>
+        <label>Saisissez <code>EFFACER</code> pour confirmer
+            <input name="confirm" autocomplete="off" required pattern="EFFACER" placeholder="EFFACER"
+                   data-unlock="#reset-btn" <?= $scoresTotal ? '' : 'disabled' ?>>
+        </label>
+        <button class="btn danger-solid" id="reset-btn" name="action" value="scores_reset" disabled
+                data-confirm="Effacer définitivement les <?= $scoresTotal ?> note(s) de tous les membres du jury ? Cette action est irréversible.">Effacer toutes les réponses</button>
+    </form>
+</section>

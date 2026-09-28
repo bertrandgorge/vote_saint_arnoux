@@ -27,6 +27,12 @@
         }
     });
 
+    // Bouton activé seulement quand le champ correspond au mot attendu (attribut pattern)
+    document.querySelectorAll('[data-unlock]').forEach((input) => {
+        const btn = $(input.dataset.unlock);
+        input.addEventListener('input', () => { btn.disabled = input.value.trim() !== input.pattern; });
+    });
+
     /** Rafraîchit périodiquement des données JSON (en pause quand l'onglet est masqué). */
     function poll(url, interval, onData, onStatus) {
         let timer = null;

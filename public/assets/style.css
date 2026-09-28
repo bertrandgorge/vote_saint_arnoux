@@ -271,3 +271,17 @@ fieldset[disabled] .likert .opt { cursor: default; opacity: .75; }
 .ico { width: 1.1em; height: 1.1em; flex: none; }
 .ranking td.total { white-space: nowrap; }
 .weight { white-space: nowrap; }
+
+/* ------------------------------------------------------------ Zone de danger */
+.danger-zone h2 { color: var(--bad); }
+.danger-card {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 16px 20px; align-items: end;
+    border: 1px solid #e7c1c1; border-left: 4px solid var(--bad); background: #fffafa;
+}
+.danger-card p { margin: 4px 0 0; }
+.danger-card code { background: #fbeeee; color: var(--bad); padding: 0 5px; border-radius: 4px; font-weight: 700; }
+.btn.danger-solid { background: var(--bad); border-color: var(--bad); color: #fff; }
+.btn.danger-solid:hover:not(:disabled) { background: #962e2e; }
+.btn.danger-solid:disabled { opacity: .45; cursor: not-allowed; }
+@media (max-width: 720px) { .danger-card { grid-template-columns: 1fr; } }
+

@@ -28,6 +28,7 @@ function redirect(string $path): void
 
 function render(string $template, array $vars = []): void
 {
+    csrf_token(); // pose le cookie CSRF avant toute sortie HTML
     extract($vars);
     ob_start();
     require APP_ROOT . '/templates/' . $template . '.php';

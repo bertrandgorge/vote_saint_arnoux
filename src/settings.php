@@ -99,6 +99,15 @@ if ($method === 'POST') {
                 flash('Toutes les sessions de ce membre ont été fermées.');
                 redirect('/reglages#jury');
 
+            case 'scores_reset':
+                if (trim($_POST['confirm'] ?? '') !== 'EFFACER') {
+                    throw new InvalidArgumentException('Réinitialisation annulée : saisissez EFFACER pour confirmer.');
+                }
+                $n = db_exec('DELETE FROM scores');
+                error_log("Réinitialisation des réponses par {$me['name']} (#{$me['id']}) : {$n} note(s) supprimée(s)");
+                flash("Toutes les réponses ont été effacées ({$n} note(s) supprimée(s)).");
+                redirect('/reglages#danger');
+
             default:
                 throw new InvalidArgumentException('Action inconnue.');
         }
@@ -110,6 +119,7 @@ if ($method === 'POST') {
 }
 
 $sessionsCount = array_column(db_all('SELECT member_id, COUNT(*) AS n FROM sessions GROUP BY member_id'), 'n', 'member_id');
+$scoresTotal = (int) db()->query('SELECT COUNT(*) FROM scores')->fetchColumn();
 $scoresCount = array_column(db_all('SELECT member_id, COUNT(DISTINCT architect_id) AS n FROM scores GROUP BY member_id'), 'n', 'member_id');
 
 render('settings', [
@@ -120,4 +130,5 @@ render('settings', [
     'generatedLink' => $generatedLink,
     'sessionsCount' => $sessionsCount,
     'scoresCount'   => $scoresCount,
+    'scoresTotal'   => $scoresTotal,
 ]);
